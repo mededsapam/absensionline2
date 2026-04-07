@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIP | ABSEN ULTIMATE</title>
+    <style>
+        :root { --neon: #00ff9d; --alert: #ff0055; --admin: #3b82f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #000; color: var(--neon); font-family: 'Courier New', monospace; min-height: 100vh; display: flex; justify-content: center; padding: 10px; }
+        .mainframe { width: 100%; max-width: 900px; background: rgba(5,15,25,0.9); backdrop-filter: blur(12px); border: 2px solid var(--neon); border-radius: 15px; padding: 15px; }
+        .visual { position: relative; width: 100%; height: 300px; border: 1px solid var(--neon); border-radius: 8px; overflow: hidden; background: #000; }
+        @media (min-width: 992px) { .visual { height: 450px; } }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .laser { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--neon); box-shadow: 0 0 20px var(--neon); z-index: 10; display: none; animation: scan 2.5s ease-in-out infinite; }
+        @keyframes scan { 0%, 100% { top: 5%; } 50% { top: 93%; } }
+        .controls { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        input, select { width: 100%; padding: 18px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon); color: var(--neon); border-radius: 8px; font-size: 1rem; }
+        
+        .btn-abs { 
+            background: var(--alert); 
+            color: #fff; 
+            padding: 25px; 
+            font-size: 1.4rem; 
+            font-weight: 900; 
+            border-radius: 60px;
+            box-shadow: 0 0 20px var(--alert);
+            margin: 10px 0;
+        }
+        .btn-init, .btn-admin { padding: 18px; font-weight: 900; cursor: pointer; border: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-init { background: var(--neon); color: #000; }
+        .btn-admin { background: var(--admin); color: #fff; }
+        
+        .qr-section { 
+            text-align: center; 
+            padding: 10px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 8px; 
+            margin-top: 10px;
+            border: 1px dashed var(--neon);
+        }
+        .qr-code { font-size: 1rem; letter-spacing: 2px; background: #000; padding: 8px; border-radius: 8px; word-break: break-all; }
+        .btn-qr { background: #3b82f6; color: #fff; padding: 12px; border: none; border-radius: 8px; margin-top: 8px; cursor: pointer; font-size: 0.8rem; }
+        
+        .console { background: #000; padding: 12px; font-size: 0.75rem; border: 1px solid #1e293b; min-height: 100px; color: #0f0; border-radius: 8px; overflow-y: auto; margin-top: 15px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-small { flex: 1; padding: 12px; font-size: 0.7rem; background: #1f2937; color: #fff; border: none; border-radius: 8px; cursor: pointer; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="mainframe">
+    <div class="header"><h1>⚡ ABSEN ULTIMATE JKT11 ⚡</h1><p style="font-size:0.6rem">QR + GPS + KAMERA</p></div>
+    
+    <div class="visual">
+        <div class="laser" id="ls"></div>
+        <video id="v" autoplay playsinline></video>
+    </div>
+    
+    <div class="controls">
+        <input type="text" id="nama" placeholder="NAMA LENGKAP">
+        <select id="lokasi">
+            <option value="kantor_pusat" data-lat="-6.2405411" data-lng="107.0069989" data-radius="150">🏢 KANTOR PUSAT (Radius 150m)</option>
+            <option value="pos_a" data-lat="-6.240000" data-lng="107.007000" data-radius="100">🎯 POS KOMANDO A (Radius 100m)</option>
+            <option value="pos_b" data-lat="-6.235000" data-lng="106.815000" data-radius="200">🎯 POS KOMANDO B (Radius 200m)</option>
+            <option value="gudang" data-lat="-6.250000" data-lng="106.830000" data-radius="80">📦 GUDANG (Radius 80m)</option>
+            <option value="substation" data-lat="-6.260000" data-lng="106.840000" data-radius="50">⚡ SUBSTATION (Radius 50m)</option>
+            <option value="stock_a" data-lat="-6.240000" data-lng="107.007000" data-radius="100">🎯 STOCK A (Radius 100m)</option>
+            <option value="stock_b" data-lat="-6.241000" data-lng="107.008000" data-radius="100">🎯 STOCK B (Radius 100m)</option>
+            <option value="stock_c" data-lat="-6.242000" data-lng="107.009000" data-radius="100">🎯 STOCK C (Radius 100m)</option>
+            <option value="site_a" data-lat="-6.245000" data-lng="107.010000" data-radius="120">🏭 SITE A (Radius 120m)</option>
+            <option value="site_b" data-lat="-6.230000" data-lng="106.990000" data-radius="90">🏭 SITE B (Radius 90m)</option>
+            <option value="site_c" data-lat="-6.255000" data-lng="106.850000" data-radius="70">🏭 SITE C (Radius 70m)</option>
+        </select>
+        
+        <button class="btn-abs" onclick="send()">✅ ABSEN SEKARANG</button>
+        
+        <div class="btn-group">
+            <button class="btn-small" onclick="boot()">📷 AKTIFKAN KAMERA</button>
+            <button class="btn-small" onclick="bukaAdmin()">👑 DATA ADMIN</button>
+            <button class="btn-small" onclick="window.open(API+'/live-stream','_blank')">📡 LIVE</button>
+        </div>
+        
+        <div class="qr-section">
+            <div style="font-size:0.7rem; margin-bottom:5px;">🔐 QR CODE HARIAN (ambil dulu sebelum absen)</div>
+            <div class="qr-code" id="qrDisplay">⚠️ BELUM AMBIL QR</div>
+            <button class="btn-qr" onclick="getQRCode()">📱 AMBIL QR CODE</button>
+        </div>
+    </div>
+    
+    <div id="log" class="console">>_ SISTEM ULTIMATE SIAP. AMBIL QR CODE DULU, LALU ABSEN...</div>
+</div>
+
+<script>
+    const API = "https://absensionline2.mededsapam.workers.dev/";
+    let active = false;
+    let qrToken = "";
+    
+    async function getQRCode() {
+        try {
+            const res = await fetch(API + "/qr-token");
+            const data = await res.json();
+            qrToken = data.token;
+            document.getElementById('qrDisplay').innerHTML = `🔐 ${qrToken}`;
+            log(`✅ QR Code siap: ${qrToken.substring(0,15)}...`);
+        } catch(e) {
+            log("❌ Gagal ambil QR Code!", true);
+            alert("Gagal ambil QR. Cek koneksi!");
+        }
+    }
+    
+    async function boot() {
+        try {
+            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('v').srcObject = s;
+            document.getElementById('ls').style.display = "block";
+            active = true;
+            log("✅ KAMERA AKTIF");
+        } catch(e) { 
+            log("❌ KAMERA DIBLOKIR!", true); 
+            alert("IZINKAN KAMERA!"); 
+        }
+    }
+    
+    function log(msg, isErr=false) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML += `<br><span style="color:${isErr?'#ff5555':'#00ff9d'}">> ${msg}</span>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        if(logDiv.children.length > 80) {
+            const lines = logDiv.innerHTML.split('<br>');
+            logDiv.innerHTML = lines.slice(-60).join('<br>');
+        }
+    }
+    
+    async function send() {
+        const nama = document.getElementById('nama').value.trim();
+        const select = document.getElementById('lokasi');
+        const option = select.options[select.selectedIndex];
+        const targetNama = option.text;
+        const targetLat = parseFloat(option.dataset.lat);
+        const targetLng = parseFloat(option.dataset.lng);
+        const targetRadius = parseFloat(option.dataset.radius);
+        
+        if(!nama) return alert("ISI NAMA DULU!");
+        if(!active) return alert("AKTIFKAN KAMERA DULU!");
+        if(!qrToken) return alert("AMBIL QR CODE DULU!");
+        
+        log(`📍 TARGET: ${targetNama}`);
+        
+        navigator.geolocation.getCurrentPosition(async (p) => {
+            if (p.mocked === true) {
+                log("❌ DETEKSI FAKE GPS!", true);
+                alert("FAKE GPS DETECTED!");
+                return;
+            }
+            
+            const acc = p.coords.accuracy;
+            log(`📍 GPS: ${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)} | Akurasi: ${Math.round(acc)}m`);
+            
+            if (acc > 100) {
+                log(`⚠️ Akurasi lemah (${Math.round(acc)}m)`, true);
+                alert("Akurasi GPS terlalu lemah! Cari ruang terbuka.");
+                return;
+            }
+            
+            const canvasFoto = document.createElement('canvas');
+            canvasFoto.width = 640; canvasFoto.height = 480;
+            canvasFoto.getContext('2d').drawImage(document.getElementById('v'), 0, 0, 640, 480);
+            
+            try {
+                log("📡 Proses absen...");
+                const cReq = await fetch(API + "/challenge");
+                const cData = await cReq.json();
+                
+                const res = await fetch(API + "/absen", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        nama, target_lat: targetLat, target_lng: targetLng,
+                        target_radius: targetRadius, target_nama: targetNama,
+                        challenge: cData.code, lat: p.coords.latitude, lng: p.coords.longitude,
+                        accuracy: acc, gps_time: p.timestamp, mocked: p.mocked || false,
+                        qr_token: qrToken,
+                        foto: canvasFoto.toDataURL('image/jpeg', 0.5)
+                    })
+                });
+                const r = await res.json();
+                if(r.ok) { 
+                    log(`✅ ${r.msg}`); 
+                    alert("✅ ABSEN BERHASIL!");
+                    document.getElementById('nama').value = "";
+                    qrToken = "";
+                    document.getElementById('qrDisplay').innerHTML = "⚠️ AMBIL QR LAGI";
+                } else { 
+                    log(`❌ ${r.msg}`, true); 
+                    alert("GAGAL: " + r.msg); 
+                }
+            } catch(e) { 
+                log(`❌ ERROR: ${e.message}`, true); 
+                alert("CEK KONEKSI INTERNET!");
+            }
+        }, (e) => { 
+            let msg = "";
+            switch(e.code){
+                case 1: msg = "Izin GPS ditolak"; break;
+                case 2: msg = "Posisi tidak tersedia"; break;
+                case 3: msg = "Timeout GPS"; break;
+                default: msg = e.message;
+            }
+            log(`❌ GPS ERROR: ${msg}`, true);
+            alert("AKTIFKAN GPS & IZINKAN AKSES LOKASI!");
+        }, { enableHighAccuracy: true, timeout: 15000 });
+    }
+    
+    function bukaAdmin() {
+        const user = prompt("Username:");
+        if(!user) return;
+        const pass = prompt("Password:");
+        if(!pass) return;
+        window.open(API + "/admin", '_blank');
+    }
+    
+    getQRCode();
+</script>
+</body>
+</html>
